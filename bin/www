@@ -3,8 +3,9 @@
 /**
  * Module dependencies.
  */
+ require("dotenv").config();
 var mysql = require("mysql2");
-var env require("dotenv").config();
+
 var app = require('../app');
 var debug = require('debug')('api:server');
 var http = require('http');
@@ -14,12 +15,12 @@ var http = require('http');
  */
 const connection=mysql.createPool({
     host: process.env.DB_HOST,
-   user: process.env.DB_USER,
-   password: process.env.DB_PASS,
-   database: process.env.DB_NAME,
-   waitForConnections: true,
-   connectionLimit: 10,
-   queueLimit:0
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit:0
 }); //Définis la connection a la base de données
 app.locals.db= connection; //permet d'envoyer des données a toute les pages
 
