@@ -1,5 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var app = express();
+var cors = require('cors');
+
+app.use(cors());
 
 router.get("/", function(req, res, next){
     const dataBase= req.app.locals.db;
