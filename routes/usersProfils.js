@@ -26,7 +26,7 @@ module.exports = router;
 router.get("/townsInscriptionForm/:urlRequest", function(req,res,next){
     const dataBase= req.app.locals.db;
     const urlRequest= req.params.urlRequest;
-    const sqlRequest="SELECT townName FROM towns WHERE countryId=?"
+    const sqlRequest="SELECT * FROM towns WHERE countryId=?"
     dataBase.query(sqlRequest,urlRequest ,function(err, towns){
         if(err) throw err;
         res.json(towns);
