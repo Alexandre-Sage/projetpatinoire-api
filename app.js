@@ -10,6 +10,8 @@ var usersRouter= require("./routes/usersProfils");
 var chatRouter= require("./routes/chat");
 
 var app = express();
+var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
+app.use(cors({origin: "http://localhost:3000"}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
