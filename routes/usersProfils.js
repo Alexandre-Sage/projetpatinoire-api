@@ -34,7 +34,14 @@ router.get("/townsInscriptionForm/:urlRequest", function(req,res,next){
 })
 module.exports = router;
 
-/*router.post("/inscription", function(req, res, next){
+router.post("/sendInscriptionForm", function(req, res, next){
     const dataBase= req.app.locals.db;
+    console.log(req.body);
+    postedData= req.body;
+    console.log(postedData[password]);
+    for(let v in postedData){
+        console.log(v);
+        console.log(postedData[v]);
+    }
 });
-module.exports = router;*/
+module.exports = router;
