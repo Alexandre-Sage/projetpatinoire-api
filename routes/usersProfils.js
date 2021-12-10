@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var slugify = require("slugify");
 
 
 router.get("/", function(req, res, next){
@@ -36,12 +37,11 @@ module.exports = router;
 
 router.post("/sendInscriptionForm", function(req, res, next){
     const dataBase= req.app.locals.db;
-    console.log(req.body);
-    postedData= req.body;
-    console.log(postedData[password]);
-    for(let v in postedData){
-        console.log(v);
-        console.log(postedData[v]);
-    }
+    let postedData= req.body;
+    dataBase.query("INSERT INTO usersProfils(countryId, townId, firstName, lastName, birthday, email, userName, password, profilCreationDate) VALUES(?,?,?,?,?,?,NOW())",
+    [postedData.country, postedData.town, postedData.firstName, postedData.lastName, postedData.birthday,postedData.email, postedData.userName, postedData.password])
+
+    console.log(postedData["password"]);
+
 });
 module.exports = router;
