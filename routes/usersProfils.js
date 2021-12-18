@@ -1,47 +1,52 @@
 var express = require('express');
 var router = express.Router();
 var slugify = require("slugify");
+var crypto = require("crypto");
 
-
-router.get("/", function(req, res, next){
-console.log("FullusersProfilsJson");
+router.get("/:emailInput/:passwordInput", async function(req, res, next){
     const dataBase= req.app.locals.db;
-    dataBase.query("SELECT * FROM usersProfils",[], function(err, userProfil){
-        if(err) throw err;
-        res.json(userProfil);
+    const userEmail= req.params.emailInput;
+    const userPassword= req.params.passwordInput;
+    let passwordConfirmation= false;
+    const passwordSqlRequest="SELECT password FROM usersProfils WHERE email=?";
+    const userProfilSqlRequest= "SELECT * FROM usersProfils WHERE email=?";
+    const emailSqlRequest="SELECT email FROM usersProfils";
 
-    })
+    function hidePassword(password){
+        const sha256= crypto.createHash("sha256");
+        const hide= sha256.update(password).digest('base64');
+        return hide;
+    }
+    dataBase.query(emailSqlRequest , function(err, emails){
+        const emailConfirmation=emails.find(email=>email.email===userEmail);
+        console.log(emailConfirmation)
+        if(emailConfirmation){
+            console.log(emailConfirmation);
+            dataBase.query( passwordSqlRequest,userEmail, function(err, password){
+                {password[0].password===hidePassword(userPassword)? passwordConfirmation=true:passwordConfirmation=false};
+                if (passwordConfirmation){
+                    dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
+                        console.log(userProfil);
+                        res.json(userProfil);
+                    })
+                } else {
+                    res.json("mdp")}
+            });
+        } else {
+            res.json("mail")
+        }
+    });
+
 })
 module.exports = router;
 
-router.get("/countriesInscriptionForm", function(req,res,next){
-    console.log("PaysInscriptionForm");
+router.post("/importPhoto", function(req,res,next){
     const dataBase= req.app.locals.db;
-    dataBase.query("SELECT * FROM countries",[], function(err, countries){
-        if(err) throw err;
-        res.json(countries);
+    picture= req.body;
+    sqlRequest=`INSERT INTO usersProfils(profilPicture)
+                WHERE userId=1
+                VALUES(?)`;
+    dataBase.query(sqlRequest, function(err, picture{
+
     })
-})
-module.exports = router;
-
-router.get("/townsInscriptionForm/:urlRequest", function(req,res,next){
-    const dataBase= req.app.locals.db;
-    const urlRequest= req.params.urlRequest;
-    const sqlRequest="SELECT * FROM towns WHERE countryId=?"
-    dataBase.query(sqlRequest,urlRequest ,function(err, towns){
-        if(err) throw err;
-        res.json(towns);
-    })
-})
-module.exports = router;
-
-router.post("/sendInscriptionForm", function(req, res, next){
-    const dataBase= req.app.locals.db;
-    let postedData= req.body;
-    dataBase.query("INSERT INTO usersProfils(countryId, townId, firstName, lastName, birthday, email, userName, password, profilCreationDate) VALUES(?,?,?,?,?,?,NOW())",
-    [postedData.country, postedData.town, postedData.firstName, postedData.lastName, postedData.birthday,postedData.email, postedData.userName, postedData.password])
-
-    console.log(postedData["password"]);
-
-});
-module.exports = router;
+}

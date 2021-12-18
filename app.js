@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var forumRouter = require('./routes/forum');
 var usersRouter= require("./routes/usersProfils");
 var chatRouter= require("./routes/chat");
+var inscriptionRouter= require("./routes/inscription");
 
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
@@ -27,7 +28,7 @@ app.use('/', indexRouter);
 app.use('/forum', forumRouter);
 app.use('/users', usersRouter);
 app.use("/chat", chatRouter);
-
+app.use("/inscription", inscriptionRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
