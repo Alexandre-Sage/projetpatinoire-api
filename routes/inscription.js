@@ -54,18 +54,3 @@ router.post("/sendInscriptionForm", async function (req, res, next){
     }
 });
 module.exports = router;
-
-/*  code: 'ER_DUP_ENTRY',
-  errno: 1062,
-  sqlState: '23000',
-  sqlMessage: "Duplicate entry 'hello2' for key 'userName'",
-  sql: "INSERT INTO usersProfils(countryId, townId, firstName, lastName, birthday, email, userName, password, profilCreationDate) VALUES('2','2','test','test','2021-12-06','test4','hello2','test',NOW())"
-*/
-
-/*  code: 'ER_DUP_ENTRY',
-  errno: 1062,
-  sqlState: '23000',
-  sqlMessage: "Duplicate entry 'test4' for key 'email'",
-  sql: "INSERT INTO usersProfils(countryId, townId, firstName, lastName, birthday, email, userName, password, profilCreationDate) VALUES('2','2','test','test','2021-12-06','test4','hello2f','test',NOW())"
-}
-*/

@@ -2,8 +2,27 @@ var express = require('express');
 var router = express.Router();
 var slugify = require("slugify");
 var crypto = require("crypto");
+var cookieParser = require('cookie-parser');
+var app = express();
 
-router.get("/:emailInput/:passwordInput", async function(req, res, next){
+app.use(cookieParser("secret"));
+
+const usersKeys={};
+
+function hidePassword(password){
+    const sha256= crypto.createHash("sha256");
+    const hide= sha256.update(password).digest('base64');
+    return hide;
+};
+
+const generateAuthToken = () => {
+    return crypto.randomBytes(30).toString('hex');
+};
+/*https://expressjs.com/en/resources/middleware/cookie-session.html*/
+
+router.post("/:emailInput/:passwordInput", async function(req, res, next){
+
+    console.log(req.params);
     const dataBase= req.app.locals.db;
     const userEmail= req.params.emailInput;
     const userPassword= req.params.passwordInput;
@@ -12,22 +31,21 @@ router.get("/:emailInput/:passwordInput", async function(req, res, next){
     const userProfilSqlRequest= "SELECT * FROM usersProfils WHERE email=?";
     const emailSqlRequest="SELECT email FROM usersProfils";
 
-    function hidePassword(password){
-        const sha256= crypto.createHash("sha256");
-        const hide= sha256.update(password).digest('base64');
-        return hide;
-    }
+
     dataBase.query(emailSqlRequest , function(err, emails){
         const emailConfirmation=emails.find(email=>email.email===userEmail);
-        console.log(emailConfirmation)
         if(emailConfirmation){
-            console.log(emailConfirmation);
             dataBase.query( passwordSqlRequest,userEmail, function(err, password){
                 {password[0].password===hidePassword(userPassword)? passwordConfirmation=true:passwordConfirmation=false};
                 if (passwordConfirmation){
                     dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
-                        console.log(userProfil);
-                        res.json(userProfil);
+                        const userKey= generateAuthToken();
+                        usersKeys[userKey]=userProfil[0].userId
+                        console.log(usersKeys);
+                        res.cookie("userKey", userKey, { httpOnly: false, // try this
+                                                            sameSite: "strict",
+                                                            signed: true})
+                        res.send(req.signedCookies.userKey)
                     })
                 } else {
                     res.json("mdp")}
@@ -39,14 +57,3 @@ router.get("/:emailInput/:passwordInput", async function(req, res, next){
 
 })
 module.exports = router;
-
-router.post("/importPhoto", function(req,res,next){
-    const dataBase= req.app.locals.db;
-    picture= req.body;
-    sqlRequest=`INSERT INTO usersProfils(profilPicture)
-                WHERE userId=1
-                VALUES(?)`;
-    dataBase.query(sqlRequest, function(err, picture{
-
-    })
-}
