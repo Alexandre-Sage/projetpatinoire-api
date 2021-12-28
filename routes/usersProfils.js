@@ -5,7 +5,7 @@ var crypto = require("crypto");
 var cookieParser = require('cookie-parser');
 var app = express();
 
-app.use(cookieParser("secret"));
+
 
 const usersKeys={};
 
@@ -15,45 +15,59 @@ function hidePassword(password){
     return hide;
 };
 
-const generateAuthToken = () => {
+function generateAuthToken(){
     return crypto.randomBytes(30).toString('hex');
 };
+
+app.use((req, res, next) => {
+    // Get auth token from the cookies
+    const authToken = req.cookies['userKey'];
+
+    // Inject the user to the request
+    req.user = usersKeys[userKey];
+
+    next();
+});
 /*https://expressjs.com/en/resources/middleware/cookie-session.html*/
 
-router.post("/:emailInput/:passwordInput", async function(req, res, next){
-
-    console.log(req.params);
+router.post("/:emailInput/:passwordInput", function(req, res, next){
     const dataBase= req.app.locals.db;
     const userEmail= req.params.emailInput;
     const userPassword= req.params.passwordInput;
-    let passwordConfirmation= false;
     const passwordSqlRequest="SELECT password FROM usersProfils WHERE email=?";
     const userProfilSqlRequest= "SELECT * FROM usersProfils WHERE email=?";
     const emailSqlRequest="SELECT email FROM usersProfils";
 
-
     dataBase.query(emailSqlRequest , function(err, emails){
-        const emailConfirmation=emails.find(email=>email.email===userEmail);
-        if(emailConfirmation){
+        if(emails.find(email=>email.email===userEmail)){
             dataBase.query( passwordSqlRequest,userEmail, function(err, password){
-                {password[0].password===hidePassword(userPassword)? passwordConfirmation=true:passwordConfirmation=false};
-                if (passwordConfirmation){
+                if (password[0].password===hidePassword(userPassword)){
                     dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
                         const userKey= generateAuthToken();
                         usersKeys[userKey]=userProfil[0].userId
                         console.log(usersKeys);
-                        res.cookie("userKey", userKey, { httpOnly: false, // try this
-                                                            sameSite: "strict",
-                                                            signed: true})
-                        res.send(req.signedCookies.userKey)
+                        res.cookie("userKey", userKey, {
+                            httpOnly: false,
+                            sameSite: "strict",
+                            signed: true
+                        })
+                        res.json(req.signedCookies.userKey)
                     })
                 } else {
-                    res.json("mdp")}
+                    res.json("mdp");
+                }
             });
         } else {
-            res.json("mail")
+            res.json("mail");
         }
     });
 
 })
 module.exports = router;
+
+router.get("/userProfil", function(req, res, next){
+    res.json("ok")
+    const token= req.signedCookies;
+    console.log(token[userKey]);
+    console.log(usersKeys);
+})

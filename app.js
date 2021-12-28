@@ -16,7 +16,7 @@ var uploadTestRouter= require("./routes/upload");
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
 app.use(cors({origin: "http://localhost:3000",
-                credentials: true}));
+                credentials: true})); //credential pour l'upload des photos
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public/images', express.static(path.join(__dirname, './public/images')));
  //ajout pour authToken
-//app.use(express.static("public"))
+
 
 app.use('/', indexRouter);
 app.use('/forum', forumRouter);
