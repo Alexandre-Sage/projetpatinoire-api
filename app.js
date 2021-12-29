@@ -1,9 +1,11 @@
 var createError = require('http-errors');
 var express = require('express');
-var path = require('path');
 var cookieParser = require('cookie-parser');
+var bodyParser= require("body-parser");
+var path = require('path');
 var logger = require('morgan');
-var bodyParser= require("body-parser"); //ajouter pour upload photo verifier utiliter
+var multer = require('multer');
+var upload= multer({dest: "./public/images/"})
 
 var indexRouter = require('./routes/index');
 var forumRouter = require('./routes/forum');
@@ -16,7 +18,7 @@ var uploadTestRouter= require("./routes/upload");
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
 app.use(cors({origin: "http://localhost:3000",
-                credentials: true})); //credential pour l'upload des photos
+                credentials: true})); //credential pour l'upload des photos et des cookies
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -24,7 +26,6 @@ app.use(cookieParser("secret"));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public/images', express.static(path.join(__dirname, './public/images')));
  //ajout pour authToken

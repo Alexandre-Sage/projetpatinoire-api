@@ -1,12 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var cookieParser = require('cookie-parser');
 var slugify = require("slugify");
 var crypto = require("crypto");
-var cookieParser = require('cookie-parser');
 var app = express();
-
-
-
 const usersKeys={};
 
 function hidePassword(password){
@@ -18,16 +15,6 @@ function hidePassword(password){
 function generateAuthToken(){
     return crypto.randomBytes(30).toString('hex');
 };
-
-app.use((req, res, next) => {
-    // Get auth token from the cookies
-    const authToken = req.cookies['userKey'];
-
-    // Inject the user to the request
-    req.user = usersKeys[userKey];
-
-    next();
-});
 /*https://expressjs.com/en/resources/middleware/cookie-session.html*/
 
 router.post("/:emailInput/:passwordInput", function(req, res, next){
@@ -35,7 +22,7 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
     const userEmail= req.params.emailInput;
     const userPassword= req.params.passwordInput;
     const passwordSqlRequest="SELECT password FROM usersProfils WHERE email=?";
-    const userProfilSqlRequest= "SELECT * FROM usersProfils WHERE email=?";
+    const userProfilSqlRequest= "SELECT userId FROM usersProfils WHERE email=?";
     const emailSqlRequest="SELECT email FROM usersProfils";
 
     dataBase.query(emailSqlRequest , function(err, emails){
@@ -45,7 +32,6 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
                     dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
                         const userKey= generateAuthToken();
                         usersKeys[userKey]=userProfil[0].userId
-                        console.log(usersKeys);
                         res.cookie("userKey", userKey, {
                             httpOnly: false,
                             sameSite: "strict",
@@ -66,8 +52,28 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
 module.exports = router;
 
 router.get("/userProfil", function(req, res, next){
-    res.json("ok")
-    const token= req.signedCookies;
-    console.log(token[userKey]);
-    console.log(usersKeys);
+    const dataBase= req.app.locals.db;
+    const userProfilSqlRequest=`SELECT  * FROM usersProfils INNER JOIN towns ON usersProfils.fkTownId = towns.townId  WHERE userId=?`;
+    if(usersKeys[req.signedCookies.userKey]){
+        console.log("logged");
+        dataBase.query(userProfilSqlRequest,usersKeys[req.signedCookies.userKey], function(err, userDetails){
+            delete userDetails[0].password;
+            res.json(userDetails);
+        })
+    }else {
+        res.json("Probleme de chargement");
+    }
 })
+module.exports = router;
+
+router.get("/userProfilHistory", function(req, res, next){
+    const dataBase= req.app.locals.db;
+    const sqlHistoryRequest= `SELECT * FROM forumTopics INNER JOIN forumPosts ON forumTopics.topicId= forumPosts.topicId WHERE forumTopics.userId=? AND forumPosts.userId= forumTopics.userId`
+    if(usersKeys[req.signedCookies.userKey]){
+        dataBase.query(sqlHistoryRequest,usersKeys[req.signedCookies.userKey], function(err, topic){
+            console.log(topic);
+            res.json(topic)
+        })
+    }
+})
+module.exports = router;
