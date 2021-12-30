@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var slugify = require("slugify");
 var crypto = require("crypto");
 var app = express();
-const usersKeys={};
+var usersKeys= require("./modules/usersKeys.js");
 
 function hidePassword(password){
     const sha256= crypto.createHash("sha256");
@@ -15,7 +15,6 @@ function hidePassword(password){
 function generateAuthToken(){
     return crypto.randomBytes(30).toString('hex');
 };
-/*https://expressjs.com/en/resources/middleware/cookie-session.html*/
 
 router.post("/:emailInput/:passwordInput", function(req, res, next){
     const dataBase= req.app.locals.db;
@@ -53,9 +52,11 @@ module.exports = router;
 
 router.get("/userProfil", function(req, res, next){
     const dataBase= req.app.locals.db;
-    const userProfilSqlRequest=`SELECT  * FROM usersProfils INNER JOIN towns ON usersProfils.fkTownId = towns.townId  WHERE userId=?`;
+    const userProfilSqlRequest=`SELECT  * FROM usersProfils
+                                INNER JOIN towns
+                                ON usersProfils.townId = towns.townId
+                                WHERE usersProfils.userId=?`;
     if(usersKeys[req.signedCookies.userKey]){
-        console.log("logged");
         dataBase.query(userProfilSqlRequest,usersKeys[req.signedCookies.userKey], function(err, userDetails){
             delete userDetails[0].password;
             res.json(userDetails);
@@ -68,7 +69,10 @@ module.exports = router;
 
 router.get("/userProfilHistory", function(req, res, next){
     const dataBase= req.app.locals.db;
-    const sqlHistoryRequest= `SELECT * FROM forumTopics INNER JOIN forumPosts ON forumTopics.topicId= forumPosts.topicId WHERE forumTopics.userId=? AND forumPosts.userId= forumTopics.userId`
+    const sqlHistoryRequest=`SELECT * FROM forumPosts
+                                INNER JOIN forumTopics
+                                ON forumPosts.topicId = forumTopics.topicId
+                                WHERE forumPosts.userId=?`
     if(usersKeys[req.signedCookies.userKey]){
         dataBase.query(sqlHistoryRequest,usersKeys[req.signedCookies.userKey], function(err, topic){
             console.log(topic);

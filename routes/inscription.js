@@ -50,7 +50,7 @@ router.post("/sendInscriptionForm", async function (req, res, next){
             }
         }
     } while(!sucess){
-        console.log("ok");
+        res.json("Profil créer avec succes");
     }
 });
 module.exports = router;
