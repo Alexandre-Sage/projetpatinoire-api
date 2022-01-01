@@ -4,6 +4,12 @@ var slugify = require("slugify");
 var crypto = require("crypto");
 var app = express();
 
+function hidePassword(password){
+    const sha256= crypto.createHash("sha256");
+    const hide= sha256.update(password).digest('base64');
+    return hide;
+}
+
 router.get("/countriesInscriptionForm", function(req,res,next){
     const dataBase= req.app.locals.db;
     dataBase.query("SELECT * FROM countries",[], function(err, countries){
@@ -13,7 +19,6 @@ router.get("/countriesInscriptionForm", function(req,res,next){
 module.exports = router;
 
 router.get("/townsInscriptionForm/:urlRequest", function(req,res,next){
-    //if(err) throw err;
     const dataBase= req.app.locals.db;
     const urlRequest= req.params.urlRequest;
     const sqlRequest="SELECT * FROM towns WHERE countryId=?"
@@ -28,11 +33,7 @@ router.post("/sendInscriptionForm", async function (req, res, next){
     const dataBase= req.app.locals.db;
     let postedData= req.body;
     let sucess=false;
-    function hidePassword(password){
-        const sha256= crypto.createHash("sha256");
-        const hide= sha256.update(password).digest('base64');
-        return hide;
-    }
+
     do{
         try{
             await dataBase.promise().query("INSERT INTO usersProfils(countryId, townId, firstName, lastName, birthday, email, userName, password, profilCreationDate) VALUES(?,?,?,?,?,?,?,?,NOW())",

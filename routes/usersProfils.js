@@ -23,10 +23,10 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
     const passwordSqlRequest="SELECT password FROM usersProfils WHERE email=?";
     const userProfilSqlRequest= "SELECT userId FROM usersProfils WHERE email=?";
     const emailSqlRequest="SELECT email FROM usersProfils";
-
+    //Rendre la fonction asynchrone
     dataBase.query(emailSqlRequest , function(err, emails){
         if(emails.find(email=>email.email===userEmail)){
-            dataBase.query( passwordSqlRequest,userEmail, function(err, password){
+            dataBase.query(passwordSqlRequest,userEmail, function(err, password){
                 if (password[0].password===hidePassword(userPassword)){
                     dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
                         const userKey= generateAuthToken();
@@ -70,9 +70,9 @@ module.exports = router;
 router.get("/userProfilHistory", function(req, res, next){
     const dataBase= req.app.locals.db;
     const sqlHistoryRequest=`SELECT * FROM forumPosts
-                                INNER JOIN forumTopics
-                                ON forumPosts.topicId = forumTopics.topicId
-                                WHERE forumPosts.userId=?`
+                            INNER JOIN forumTopics
+                            ON forumPosts.topicId = forumTopics.topicId
+                            WHERE forumPosts.userId=?`
     if(usersKeys[req.signedCookies.userKey]){
         dataBase.query(sqlHistoryRequest,usersKeys[req.signedCookies.userKey], function(err, topic){
             console.log(topic);

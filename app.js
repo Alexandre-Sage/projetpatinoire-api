@@ -12,6 +12,7 @@ var forumRouter = require('./routes/forum');
 var usersRouter= require("./routes/usersProfils");
 var chatRouter= require("./routes/chat");
 var inscriptionRouter= require("./routes/inscription");
+var usersImagesRouter= require("./routes/usersImages.js");
 
 var uploadTestRouter= require("./routes/upload");
 
@@ -36,7 +37,8 @@ app.use('/forum', forumRouter);
 app.use('/users', usersRouter);
 app.use("/chat", chatRouter);
 app.use("/inscription", inscriptionRouter);
-app.use("/upload", uploadTestRouter)
+app.use("/upload", uploadTestRouter);
+app.use("/usersImages", usersImagesRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
