@@ -52,14 +52,23 @@ module.exports = router;
 
 router.get("/userProfil", function(req, res, next){
     const dataBase= req.app.locals.db;
-    const userProfilSqlRequest=`SELECT  * FROM usersProfils
+    const userProfilSqlRequest=`SELECT * FROM profilPicture
+                                INNER JOIN usersProfils ON usersProfils.userId
+                                INNER JOIN userImages ON userImages.imageId
+                                INNER JOIN towns ON usersProfils.townId
+                                WHERE profilPicture.userId=?
+                                AND profilPicture.userId=usersProfils.userId
+                                AND profilPicture.imageId=userImages.imageId
+                                AND usersProfils.townId=towns.townId`
+    /*const userProfilSqlRequest=`SELECT  * FROM usersProfils
                                 INNER JOIN towns
                                 ON usersProfils.townId = towns.townId
-                                WHERE usersProfils.userId=?`;
+                                WHERE usersProfils.userId=?`;*/
     if(usersKeys[req.signedCookies.userKey]){
         dataBase.query(userProfilSqlRequest,usersKeys[req.signedCookies.userKey], function(err, userDetails){
-            delete userDetails[0].password;
+            //delete userDetails[0].password;
             res.json(userDetails);
+            console.log(userDetails);
         })
     }else {
         res.json("Probleme de chargement");

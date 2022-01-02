@@ -12,7 +12,7 @@ var forumRouter = require('./routes/forum');
 var usersRouter= require("./routes/usersProfils");
 var chatRouter= require("./routes/chat");
 var inscriptionRouter= require("./routes/inscription");
-var usersImagesRouter= require("./routes/usersImages.js");
+var usersImagesRouter= require("./routes/usersImages");
 
 var uploadTestRouter= require("./routes/upload");
 
