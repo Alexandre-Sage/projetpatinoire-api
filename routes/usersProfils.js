@@ -2,34 +2,33 @@ var express = require('express');
 var router = express.Router();
 var cookieParser = require('cookie-parser');
 var slugify = require("slugify");
-var crypto = require("crypto");
 var app = express();
-var usersKeys= require("./modules/usersKeys.js");
 
-function hidePassword(password){
-    const sha256= crypto.createHash("sha256");
-    const hide= sha256.update(password).digest('base64');
-    return hide;
-};
+var usersKeys= require("./modules/session/usersKeys");
+var userSession= require("./modules/session/userSession");
 
-function generateAuthToken(){
-    return crypto.randomBytes(30).toString('hex');
-};
-
+//Route de connexions créer les cookies d'authentifications transmis ensuite dans la liste des userskeys et envoyer au frontEnd
 router.post("/:emailInput/:passwordInput", function(req, res, next){
     const dataBase= req.app.locals.db;
     const userEmail= req.params.emailInput;
     const userPassword= req.params.passwordInput;
-    const passwordSqlRequest="SELECT password FROM usersProfils WHERE email=?";
-    const userProfilSqlRequest= "SELECT userId FROM usersProfils WHERE email=?";
-    const emailSqlRequest="SELECT email FROM usersProfils";
-    //Rendre la fonction asynchrone
-    dataBase.query(emailSqlRequest , function(err, emails){
+    const passwordSqlRequest=`SELECT password
+                                FROM usersProfils
+                                WHERE email=?`;
+
+    const userProfilSqlRequest=`SELECT userId
+                                FROM usersProfils
+                                WHERE email=?`;
+
+    const emailCheckSqlRequest=`SELECT email
+                                FROM usersProfils`;
+
+    dataBase.query(emailCheckSqlRequest , function(err, emails){
         if(emails.find(email=>email.email===userEmail)){
             dataBase.query(passwordSqlRequest,userEmail, function(err, password){
-                if (password[0].password===hidePassword(userPassword)){
+                if (password[0].password===userSession.hidePassword(userPassword)){
                     dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
-                        const userKey= generateAuthToken();
+                        const userKey= userSession.generateAuthToken();
                         usersKeys[userKey]=userProfil[0].userId
                         res.cookie("userKey", userKey, {
                             httpOnly: false,
@@ -46,7 +45,6 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
             res.json("mail");
         }
     });
-
 })
 module.exports = router;
 
@@ -60,13 +58,14 @@ router.get("/userProfil", function(req, res, next){
                                 AND profilPicture.userId=usersProfils.userId
                                 AND profilPicture.imageId=userImages.imageId
                                 AND usersProfils.townId=towns.townId`
+
     /*const userProfilSqlRequest=`SELECT  * FROM usersProfils
                                 INNER JOIN towns
                                 ON usersProfils.townId = towns.townId
                                 WHERE usersProfils.userId=?`;*/
-    if(usersKeys[req.signedCookies.userKey]){
+    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         dataBase.query(userProfilSqlRequest,usersKeys[req.signedCookies.userKey], function(err, userDetails){
-            //delete userDetails[0].password;
+            delete userDetails[0].password;
             res.json(userDetails);
             console.log(userDetails);
         })
@@ -76,15 +75,15 @@ router.get("/userProfil", function(req, res, next){
 })
 module.exports = router;
 
-router.get("/userProfilHistory", function(req, res, next){
+router.get("/userProfilForumHistory", function(req, res, next){
     const dataBase= req.app.locals.db;
     const sqlHistoryRequest=`SELECT * FROM forumPosts
-                            INNER JOIN forumTopics
-                            ON forumPosts.topicId = forumTopics.topicId
-                            WHERE forumPosts.userId=?`
-    if(usersKeys[req.signedCookies.userKey]){
+                                INNER JOIN forumTopics
+                                ON forumPosts.topicId = forumTopics.topicId
+                                WHERE forumPosts.userId=?`
+
+    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         dataBase.query(sqlHistoryRequest,usersKeys[req.signedCookies.userKey], function(err, topic){
-            console.log(topic);
             res.json(topic)
         })
     }

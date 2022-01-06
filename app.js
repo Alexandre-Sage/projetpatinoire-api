@@ -14,8 +14,6 @@ var chatRouter= require("./routes/chat");
 var inscriptionRouter= require("./routes/inscription");
 var usersImagesRouter= require("./routes/usersImages");
 
-var uploadTestRouter= require("./routes/upload");
-
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
 app.use(cors({origin: "http://localhost:3000",
@@ -37,7 +35,6 @@ app.use('/forum', forumRouter);
 app.use('/users', usersRouter);
 app.use("/chat", chatRouter);
 app.use("/inscription", inscriptionRouter);
-app.use("/upload", uploadTestRouter);
 app.use("/usersImages", usersImagesRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
