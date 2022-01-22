@@ -36,7 +36,7 @@ router.post("/upload",upload.single("image"), async function(req,res,next){
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         do{
             try{
-                await dataBase.promise().query(sqlRequests.sqlRequestUploadRoute,[usersKeys[req.signedCookies.userKey],req.file.path, req.body.title, req.body.description]);
+                await  dataBase.promise().query(sqlRequests.sqlRequestUploadRoute,[usersKeys[req.signedCookies.userKey],req.file.path, req.body.title, req.body.description]);
                 console.log("ok");
                 sucess=true
             } catch(err){
@@ -63,9 +63,10 @@ router.post("/profilPictureChange/:urlRequest",async function(req,res,next){
             }
         } catch(err){
             console.log(err);
+            res.json("Une erreur est survenue veuillez éssayer a nouveaux")
         }
     } while(!sucess){
-        res.json("Photo Profil définis")
+        res.json("Votre photo profil à bien été modifier")
     }
 })
 module.exports = router;

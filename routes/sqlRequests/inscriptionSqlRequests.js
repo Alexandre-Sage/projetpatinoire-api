@@ -21,3 +21,12 @@ const sqlRequestSendInscritpionFormRoute= `INSERT INTO usersProfils(
                                                                 )
                                                                 VALUES(?,?,?,?,?,?,?,?,NOW())`;
 exports.sqlRequestSendInscritpionFormRoute= sqlRequestSendInscritpionFormRoute;
+
+const sqlRequestDefaultProfilPicture= `INSERT INTO profilPicture(userId, imageId)
+                                        VALUES(?,1)`;
+exports.sqlRequestDefaultProfilPicture=sqlRequestDefaultProfilPicture;
+
+const sqlRequestNewUserId= `SELECT userId
+                            FROM usersProfils
+                            WHERE email=?`;
+exports.sqlRequestNewUserId=sqlRequestNewUserId;

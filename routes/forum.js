@@ -1,5 +1,10 @@
 var express = require('express');
 var router = express.Router();
+var usersKeys= require("./modules/session/usersKeys");
+var userSession= require("./modules/session/userSession");
+var cookieParser = require('cookie-parser');
+var slugify = require("slugify");
+var app = express();
 
 router.get("/", function(req, res, next){
     const dataBase= req.app.locals.db;

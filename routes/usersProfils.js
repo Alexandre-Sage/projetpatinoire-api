@@ -3,7 +3,7 @@ var router = express.Router();
 var cookieParser = require('cookie-parser');
 var slugify = require("slugify");
 var app = express();
-
+var sqlRequests= require("./sqlRequests/userProfilSqlRequests");
 var usersKeys= require("./modules/session/usersKeys");
 var userSession= require("./modules/session/userSession");
 
@@ -12,22 +12,11 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
     const dataBase= req.app.locals.db;
     const userEmail= req.params.emailInput;
     const userPassword= req.params.passwordInput;
-    const passwordSqlRequest=`SELECT password
-                                FROM usersProfils
-                                WHERE email=?`;
-
-    const userProfilSqlRequest=`SELECT userId
-                                FROM usersProfils
-                                WHERE email=?`;
-
-    const emailCheckSqlRequest=`SELECT email
-                                FROM usersProfils`;
-
-    dataBase.query(emailCheckSqlRequest , function(err, emails){
+    dataBase.query(sqlRequests.emailCheckSqlRequestConnexionRoute , function(err, emails){
         if(emails.find(email=>email.email===userEmail)){
-            dataBase.query(passwordSqlRequest,userEmail, function(err, password){
+            dataBase.query(sqlRequests.passwordSqlRequestConnexionRoute,userEmail, function(err, password){
                 if (password[0].password===userSession.hidePassword(userPassword)){
-                    dataBase.query(userProfilSqlRequest,userEmail, function(err, userProfil){
+                    dataBase.query(sqlRequests.userProfilSqlRequestConnexionRoute,userEmail, function(err, userProfil){
                         const userKey= userSession.generateAuthToken();
                         usersKeys[userKey]=userProfil[0].userId
                         res.cookie("userKey", userKey, {
@@ -47,24 +36,11 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
     });
 })
 module.exports = router;
-
 router.get("/userProfil", function(req, res, next){
+    console.log(usersKeys);
     const dataBase= req.app.locals.db;
-    const userProfilSqlRequest=`SELECT * FROM profilPicture
-                                INNER JOIN usersProfils ON usersProfils.userId
-                                INNER JOIN userImages ON userImages.imageId
-                                INNER JOIN towns ON usersProfils.townId
-                                WHERE profilPicture.userId=?
-                                AND profilPicture.userId=usersProfils.userId
-                                AND profilPicture.imageId=userImages.imageId
-                                AND usersProfils.townId=towns.townId`
-
-    /*const userProfilSqlRequest=`SELECT  * FROM usersProfils
-                                INNER JOIN towns
-                                ON usersProfils.townId = towns.townId
-                                WHERE usersProfils.userId=?`;*/
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(userProfilSqlRequest,usersKeys[req.signedCookies.userKey], function(err, userDetails){
+        dataBase.query(sqlRequests.userProfilSqlRequestUserProfilRoute,usersKeys[req.signedCookies.userKey], function(err, userDetails){
             delete userDetails[0].password;
             res.json(userDetails);
             console.log(userDetails);
@@ -77,15 +53,41 @@ module.exports = router;
 
 router.get("/userProfilForumHistory", function(req, res, next){
     const dataBase= req.app.locals.db;
-    const sqlHistoryRequest=`SELECT * FROM forumPosts
-                                INNER JOIN forumTopics
-                                ON forumPosts.topicId = forumTopics.topicId
-                                WHERE forumPosts.userId=?`
-
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(sqlHistoryRequest,usersKeys[req.signedCookies.userKey], function(err, topic){
+        dataBase.query(sqlRequests.sqlHistoryRequestConnexionRoute, usersKeys[req.signedCookies.userKey], function(err, topic){
             res.json(topic)
         })
     }
 })
 module.exports = router;
+
+router.post("/updateProfil", async function(req, res, next){
+    const dataBase= req.app.locals.db;
+    const postedData= req.body;
+    console.log(postedData);
+    let sucess= false;
+    const sqlRequestUpdateProfil= `UPDATE usersProfils
+                        SET userName=?,
+                            email=?,
+                            firstName=?,
+                            LastName=?,
+                            homeSpot=?,
+                            birthday=?,
+                            countryId=?,
+                            townId=?
+                        WHERE userId=?`
+    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
+        do{
+            try{
+                await dataBase.promise().query(sqlRequestUpdateProfil,[postedData.userName,postedData.email,postedData.firstName, postedData.LastName, postedData.homeSpot, postedData.birthday, postedData.countryId, postedData.townId, usersKeys[req.signedCookies.userKey]])
+                sucess=true;
+            }catch(err){
+                console.log(err);
+            }
+        }while(!sucess){
+            res.json("Votre Profil à été modifier avec succès")
+        }
+    } else {
+        res.json("Veuillez vous connectez pour éffectuer cette opération")
+    }
+})

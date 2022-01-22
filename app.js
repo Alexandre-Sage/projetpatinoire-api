@@ -16,11 +16,18 @@ var usersImagesRouter= require("./routes/usersImages");
 
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
-app.use(cors({origin: "http://localhost:3000",
-                credentials: true})); //credential pour l'upload des photos et des cookies
+app.use(cors({
+                origin:  "http://localhost:3000",
+                credentials: true
+            })); //credential pour l'upload des photos et des cookies
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+//test ajout cors
+/*app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});*/
+//test ajout cors
 app.use(cookieParser("secret"));
 app.use(logger('dev'));
 app.use(express.json());

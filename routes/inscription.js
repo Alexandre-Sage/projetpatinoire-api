@@ -3,7 +3,6 @@ var router = express.Router();
 var slugify = require("slugify");
 var app = express();
 var sqlRequests= require("./sqlRequests/inscriptionSqlRequests");
-
 var userSession= require("./modules/session/userSession");
 
 //Route permettant de récuperer les pays fetcher par inscriptionForm.jsx
@@ -31,8 +30,6 @@ router.post("/sendInscriptionForm", async function (req, res, next){
     const dataBase= req.app.locals.db;
     let postedData= req.body;
     let sucess=false;
-    //const sqlRequestDefaultProfilPicture= 'INSERT INTO profilPicture(userId, imageId) VALUES(?,1)';
-
     do{
         try{
             await dataBase.promise().query(sqlRequests.sqlRequestSendInscritpionFormRoute, [postedData.country, postedData.town, postedData.firstName, postedData.lastName, postedData.birthday,postedData.email, postedData.userName, userSession.hidePassword(postedData.password)]);
@@ -42,7 +39,7 @@ router.post("/sendInscriptionForm", async function (req, res, next){
                 const sqlMessageUserName=`Duplicate entry '${postedData.userName}' for key 'userName'`;
                 const sqlMessageEmail=`Duplicate entry '${postedData.email}' for key 'email'`;
                 if (sqlMessageUserName===err.sqlMessage){
-                    res.json("Pseudo déja utiliser")
+                    res.json("le pseudo est déja utiliser")
                 } else if(sqlMessageEmail===err.sqlMessage){
                     res.json("Email déja utiliser")
                 };
@@ -50,6 +47,10 @@ router.post("/sendInscriptionForm", async function (req, res, next){
         }
     } while(!sucess){
         res.json("Profil créer avec succes");
+        dataBase.query(sqlRequests.sqlRequestNewUserId,[postedData.email],function(err,userId){
+            console.log(userId[0].userId);
+            dataBase.query(sqlRequests.sqlRequestDefaultProfilPicture,[userId[0].userId])
+        })
     }
 });
 module.exports = router;
