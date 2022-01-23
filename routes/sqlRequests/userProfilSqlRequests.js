@@ -31,3 +31,16 @@ const userProfilSqlRequestUserProfilRoute=`SELECT * FROM profilPicture
                                             AND profilPicture.imageId=userImages.imageId
                                             AND usersProfils.townId=towns.townId`
 exports.userProfilSqlRequestUserProfilRoute=userProfilSqlRequestUserProfilRoute;
+////////////////////////////////////////////////////////////////////////////////
+
+const sqlRequestUpdateProfilRoute= `UPDATE usersProfils
+                    SET userName=?,
+                        email=?,
+                        firstName=?,
+                        LastName=?,
+                        homeSpot=?,
+                        birthday=?,
+                        countryId=?,
+                        townId=?
+                    WHERE userId=?`
+exports.sqlRequestUpdateProfilRoute=sqlRequestUpdateProfilRoute;

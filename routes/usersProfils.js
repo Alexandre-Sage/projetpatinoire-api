@@ -66,23 +66,24 @@ router.post("/updateProfil", async function(req, res, next){
     const postedData= req.body;
     console.log(postedData);
     let sucess= false;
-    const sqlRequestUpdateProfil= `UPDATE usersProfils
-                        SET userName=?,
-                            email=?,
-                            firstName=?,
-                            LastName=?,
-                            homeSpot=?,
-                            birthday=?,
-                            countryId=?,
-                            townId=?
-                        WHERE userId=?`
+
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         do{
             try{
-                await dataBase.promise().query(sqlRequestUpdateProfil,[postedData.userName,postedData.email,postedData.firstName, postedData.LastName, postedData.homeSpot, postedData.birthday, postedData.countryId, postedData.townId, usersKeys[req.signedCookies.userKey]])
+                await dataBase.promise().query(sqlRequests.sqlRequestUpdateProfilRoute,[postedData.userName,postedData.email,postedData.firstName, postedData.LastName, postedData.homeSpot, postedData.birthday, postedData.countryId, postedData.townId, usersKeys[req.signedCookies.userKey]])
                 sucess=true;
             }catch(err){
-                console.log(err);
+                switch(err.sqlMessage){
+                    case `Duplicate entry '${postedData.userName}' for key 'userName'`:
+                        res.json(`Le pseudo ${postedData.userName} est déja utiliser veuillez en choisir un autres`)
+                    break;
+                    case `Duplicate entry '${postedData.email}' for key 'email'`:
+                        res.json(`L'adresse email ${postedData.email} est déja utiliser veuillez en choisir un autres`)
+                    break;
+                    default:
+                        res.json("Une érreur est survenue veuillez réssayer.")
+                    break;
+                }
             }
         }while(!sucess){
             res.json("Votre Profil à été modifier avec succès")

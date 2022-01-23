@@ -17,8 +17,9 @@ var usersImagesRouter= require("./routes/usersImages");
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
 app.use(cors({
-                origin:  "http://localhost:3000",
-                credentials: true
+                origin:  ["http://localhost:3000","http://localhost:4000"],
+                credentials: true,
+                preflightContinue: true,
             })); //credential pour l'upload des photos et des cookies
 // view engine setup
 //test ajout cors
