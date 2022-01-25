@@ -85,10 +85,48 @@ router.post("/updateProfil", async function(req, res, next){
                     break;
                 }
             }
-        }while(!sucess){
+        } while(!sucess){
             res.json("Votre Profil à été modifier avec succès")
         }
     } else {
         res.json("Veuillez vous connectez pour éffectuer cette opération")
     }
 })
+module.exports = router;
+
+router.post("/updatePassword", async function(req, res, next){
+    const dataBase= req.app.locals.db;
+    const postedData= req.body;
+    console.log(postedData);
+    let sucess= false;
+    let passwordAuthentification=false;
+
+    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
+        dataBase.query(sqlRequests.sqlRequestPasswordConfirmationUpdatePasswordRoute,[usersKeys[req.signedCookies.userKey]] ,function(err, password){
+            console.log(password);
+            console.log(err);
+            if(password[0].password===userSession.hidePassword(postedData.actualPassword)){
+                passwordAuthentification=true;
+                console.log(passwordAuthentification);
+                console.log(password[0].password);
+            } else{
+                res.json("Authentification échouer veuillez ré éssayer")
+            }
+        })
+        if(!passwordAuthentification){
+            do{
+                try{
+                    await dataBase.promise().query(sqlRequests.sqlRequestUpdatePasswordRoute,[userSession.hidePassword(postedData.newPassword), usersKeys[req.signedCookies.userKey]])
+                    sucess=true;
+                } catch(err){
+                    res.json(err)
+                }
+            } while(!sucess){
+                res.json("Mot de passe changer avec succès")
+            }
+        }
+    } else{
+        res.json("Une érreur est survenue veuillez ré éssayer")
+    }
+})
+module.exports = router;

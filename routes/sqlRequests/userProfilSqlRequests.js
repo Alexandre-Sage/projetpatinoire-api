@@ -34,13 +34,23 @@ exports.userProfilSqlRequestUserProfilRoute=userProfilSqlRequestUserProfilRoute;
 ////////////////////////////////////////////////////////////////////////////////
 
 const sqlRequestUpdateProfilRoute= `UPDATE usersProfils
-                    SET userName=?,
-                        email=?,
-                        firstName=?,
-                        LastName=?,
-                        homeSpot=?,
-                        birthday=?,
-                        countryId=?,
-                        townId=?
-                    WHERE userId=?`
+                                    SET userName=?,
+                                        email=?,
+                                        firstName=?,
+                                        LastName=?,
+                                        homeSpot=?,
+                                        birthday=?,
+                                        countryId=?,
+                                        townId=?
+                                    WHERE userId=?`
 exports.sqlRequestUpdateProfilRoute=sqlRequestUpdateProfilRoute;
+
+const sqlRequestPasswordConfirmationUpdatePasswordRoute=`SELECT password
+                                                            FROM usersProfils
+                                                            WHERE userId=?`
+exports.sqlRequestPasswordConfirmationUpdatePasswordRoute=sqlRequestPasswordConfirmationUpdatePasswordRoute;
+
+const sqlRequestUpdatePasswordRoute=`UPDATE usersProfils
+                                        SET password=?
+                                        WHERE userId=?`
+exports.sqlRequestUpdatePasswordRoute=sqlRequestUpdatePasswordRoute;

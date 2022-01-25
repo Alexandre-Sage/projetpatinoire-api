@@ -6,9 +6,10 @@ var cookieParser = require('cookie-parser');
 var slugify = require("slugify");
 var app = express();
 
-router.get("/", function(req, res, next){
+router.get("/categories", function(req, res, next){
     const dataBase= req.app.locals.db;
-    dataBase.query("SELECT * FROM forumCategories",[], function(err, forumCategories){
+    const sqlRequestForumCategoriesRoute="SELECT * FROM forumCategories";
+    dataBase.query(sqlRequestForumCategoriesRoute, [], function(err, forumCategories){
         if(err) throw err;
         res.json(forumCategories);
     })
