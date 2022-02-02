@@ -8,10 +8,11 @@ var usersKeys= require("./modules/session/usersKeys");
 var userSession= require("./modules/session/userSession");
 
 //Route de connexions créer les cookies d'authentifications transmis ensuite dans la liste des userskeys et envoyer au frontEnd
-router.post("/:emailInput/:passwordInput", function(req, res, next){
+router.post("/", function(req, res, next){
     const dataBase= req.app.locals.db;
-    const userEmail= req.params.emailInput;
-    const userPassword= req.params.passwordInput;
+    const userEmail= req.body.emailInput;
+    const userPassword= req.body.passwordInput;
+    console.log(req.body);
     dataBase.query(sqlRequests.emailCheckSqlRequestConnexionRoute , function(err, emails){
         if(emails.find(email=>email.email===userEmail)){
             dataBase.query(sqlRequests.passwordSqlRequestConnexionRoute,userEmail, function(err, password){
@@ -24,18 +25,31 @@ router.post("/:emailInput/:passwordInput", function(req, res, next){
                             sameSite: "strict",
                             signed: true
                         })
-                        res.json(req.signedCookies.userKey)
+                        res.json({
+                            "userName": userProfil[0].userName,
+                            "message": "Connexion réussi",
+                            "validator": true
+                        })
                     })
                 } else {
-                    res.json("mdp");
+                    res.json({
+                        "userName": null,
+                        "message": "Mot de passe incorrecte veuillez ré éssayer",
+                        "validator": false
+                    });
                 }
             });
         } else {
-            res.json("mail");
+            res.json({
+                "userName": null,
+                "message":"Email inconnue veuillez ré éssayer",
+                "validator": false
+            });
         }
     });
 })
 module.exports = router;
+
 router.get("/userProfil", function(req, res, next){
     console.log(usersKeys);
     const dataBase= req.app.locals.db;
@@ -128,5 +142,17 @@ router.post("/updatePassword", async function(req, res, next){
     } else{
         res.json("Une érreur est survenue veuillez ré éssayer")
     }
+})
+module.exports = router;
+
+router.get("/OthersProfil/:userId", function(req,res,next){
+    const dataBase= req.app.locals.db;
+    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
+        dataBase.query(sqlRequests.userProfilSqlRequestUserProfilRoute,[req.params.userId],function(err, userDetails){
+            delete userDetails[0].password;
+            res.json("Other profile Details",userDetails);
+        })
+    }
+
 })
 module.exports = router;

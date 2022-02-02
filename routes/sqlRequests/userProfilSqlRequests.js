@@ -3,7 +3,7 @@ const emailCheckSqlRequestConnexionRoute=`SELECT email
 exports.emailCheckSqlRequestConnexionRoute= emailCheckSqlRequestConnexionRoute;
 ///////////////////////////////////////////////////////////////////////////////
 
-const userProfilSqlRequestConnexionRoute=`SELECT userId
+const userProfilSqlRequestConnexionRoute=`SELECT userId, userName
                                             FROM usersProfils
                                             WHERE email=?`;
 exports.userProfilSqlRequestConnexionRoute= userProfilSqlRequestConnexionRoute;
