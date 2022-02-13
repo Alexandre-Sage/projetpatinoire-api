@@ -13,6 +13,8 @@ var usersRouter= require("./routes/usersProfils");
 var chatRouter= require("./routes/chat");
 var inscriptionRouter= require("./routes/inscription");
 var usersImagesRouter= require("./routes/usersImages");
+//var othersProfilsRouter= require("./routes/othersProfils");
+//var othersProfilsImagesRouter= require("./routes/othersProfilsImages");
 
 var app = express();
 var cors = require('cors'); /*Ajout et configuration de cors pour autoriser l'appli react a fetcher l'api*/
@@ -42,6 +44,8 @@ app.use('/users', usersRouter);
 app.use("/chat", chatRouter);
 app.use("/inscription", inscriptionRouter);
 app.use("/usersImages", usersImagesRouter);
+//app.use("/othersProfils", othersProfilsRouter);
+//app.use("/othersProfilsImages", othersProfilsImagesRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

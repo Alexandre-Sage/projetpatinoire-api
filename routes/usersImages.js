@@ -9,19 +9,35 @@ var sqlRequests= require("./sqlRequests/usersImagesSqlRequests");
 const upload= multer({dest: "./public/images/usersImages"});
 
 //Route pour récuppérer toutes les images d'un utilisateur fetcher par userImageJsx
-router.get("/", function(req,res,next){
+router.get("/:userId", function(req,res,next){
+    let userId;
+    if(parseInt(req.params.userId)===usersKeys[req.signedCookies.userKey]){
+        console.log("userProfils");
+        userId=usersKeys[req.signedCookies.userKey]
+    } else{
+        console.log("otherProfils");
+        userId=req.params.userId
+    }
     const dataBase= req.app.locals.db;
-    dataBase.query(sqlRequests.sqlRequestAllImagesRoute,[usersKeys[req.signedCookies.userKey]], (err, downloadImages)=>{
+    dataBase.query(sqlRequests.sqlRequestAllImagesRoute,[userId], (err, downloadImages)=>{
         res.json(downloadImages)
     })
 })
 module.exports = router;
 
 //Route historique des photos fetcher par PictureHistoryJsx
-router.get("/history",function(req,res,next){
+router.get("/history/:userId",function(req,res,next){
     const dataBase= req.app.locals.db;
+    let userId;
+    if(parseInt(req.params.userId)===usersKeys[req.signedCookies.userKey]){
+        console.log("userProfils");
+        userId=usersKeys[req.signedCookies.userKey]
+    } else{
+        console.log("otherProfils");
+        userId=req.params.userId
+    }
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(sqlRequests.sqlRequestImageHistoryRoute,[usersKeys[req.signedCookies.userKey]], (err, images)=>{
+        dataBase.query(sqlRequests.sqlRequestImageHistoryRoute,[userId], (err, images)=>{
             console.log(images);
             res.json(images)
         })
@@ -37,13 +53,14 @@ router.post("/upload",upload.single("image"), async function(req,res,next){
         do{
             try{
                 await  dataBase.promise().query(sqlRequests.sqlRequestUploadRoute,[usersKeys[req.signedCookies.userKey],req.file.path, req.body.title, req.body.description]);
-                console.log("ok");
                 sucess=true
             } catch(err){
                 console.log(err);
             }
         } while(!sucess){
-            res.json("image envoyer avec succès")
+            res.json({
+                "message":"image envoyer avec succès"
+            })
         }
     }
 })
@@ -59,14 +76,20 @@ router.post("/profilPictureChange/:urlRequest",async function(req,res,next){
                 await dataBase.promise().query(sqlRequests.sqlRequestChangeProfilPictureRoute, [req.params.urlRequest,usersKeys[req.signedCookies.userKey]]);
                 sucess=true;
             }else {
-                res.json("Veuillez vous connectez")
+                res.json({
+                    "message":"Veuillez vous connectez"
+                })
             }
         } catch(err){
             console.log(err);
-            res.json("Une erreur est survenue veuillez éssayer a nouveaux")
+            res.json({
+                "message":"Une erreur est survenue veuillez éssayer a nouveaux"
+            })
         }
     } while(!sucess){
-        res.json("Votre photo profil à bien été modifier")
+        res.json({
+            "message":"Votre photo profil à bien été modifier"
+        })
     }
 })
 module.exports = router;

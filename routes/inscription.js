@@ -39,14 +39,20 @@ router.post("/sendInscriptionForm", async function (req, res, next){
                 const sqlMessageUserName=`Duplicate entry '${postedData.userName}' for key 'userName'`;
                 const sqlMessageEmail=`Duplicate entry '${postedData.email}' for key 'email'`;
                 if (sqlMessageUserName===err.sqlMessage){
-                    res.json("le pseudo est déja utiliser")
+                    res.json({
+                        "message":"le pseudo est déja utiliser"
+                    })
                 } else if(sqlMessageEmail===err.sqlMessage){
-                    res.json("Email déja utiliser")
+                    res.json({
+                        "message":"Email déja utiliser"
+                    })
                 };
             }
         }
     } while(!sucess){
-        res.json("Profil créer avec succes");
+        res.json({
+            "message":"Profil créer avec succes"
+        });
         dataBase.query(sqlRequests.sqlRequestNewUserId,[postedData.email],function(err,userId){
             console.log(userId[0].userId);
             dataBase.query(sqlRequests.sqlRequestDefaultProfilPicture,[userId[0].userId])

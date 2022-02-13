@@ -26,7 +26,10 @@ router.post("/", function(req, res, next){
                             signed: true
                         })
                         res.json({
-                            "userName": userProfil[0].userName,
+                            "userParams":{
+                                "userName": userProfil[0].userName,
+                                "userId":userProfil[0].userId
+                            },
                             "message": "Connexion réussi",
                             "validator": true
                         })
@@ -49,8 +52,8 @@ router.post("/", function(req, res, next){
     });
 })
 module.exports = router;
-
-router.get("/userProfil", function(req, res, next){
+//A ENLEVER QUAND LES PROFILS SEONT FINIS
+/*router.get("/userProfil", function(req, res, next){
     console.log(usersKeys);
     const dataBase= req.app.locals.db;
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
@@ -63,13 +66,49 @@ router.get("/userProfil", function(req, res, next){
         res.json("Probleme de chargement");
     }
 })
-module.exports = router;
+module.exports = router;*/
 
-router.get("/userProfilForumHistory", function(req, res, next){
+//Route test fusion other/userSession//////////////////////////////////////////////////////////////////////////
+router.get("/userProfil/:userId", function(req, res, next){
+    let userId;
+    let profilOwner;
+    if(parseInt(req.params.userId)===usersKeys[req.signedCookies.userKey]){
+        console.log("userProfils");
+        userId=usersKeys[req.signedCookies.userKey]
+        profilOwner=true;
+    } else{
+        console.log("otherProfils");
+        userId=req.params.userId
+        profilOwner=false;
+    }
     const dataBase= req.app.locals.db;
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(sqlRequests.sqlHistoryRequestConnexionRoute, usersKeys[req.signedCookies.userKey], function(err, topic){
-            res.json(topic)
+        dataBase.query(sqlRequests.userProfilSqlRequestUserProfilRoute,[userId], function(err, userDetails){
+            delete userDetails[0].password;
+            res.json({
+                "userDetails":userDetails,
+                "profilOwner":profilOwner
+            });
+        })
+    }else {
+        res.json("Probleme de chargement");
+    }
+})
+module.exports = router;
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+router.get("/userProfilForumHistory/:userId", function(req, res, next){
+    const dataBase= req.app.locals.db;
+    let userId;
+    if(parseInt(req.params.userId)===usersKeys[req.signedCookies.userKey]){
+        console.log("userProfils");
+        userId=usersKeys[req.signedCookies.userKey]
+    } else{
+        console.log("otherProfils");
+        userId=req.params.userId
+    }
+    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
+        dataBase.query(sqlRequests.sqlHistoryRequestConnexionRoute, [userId], function(err, post){
+            res.json(post)
         })
     }
 })
@@ -89,21 +128,31 @@ router.post("/updateProfil", async function(req, res, next){
             }catch(err){
                 switch(err.sqlMessage){
                     case `Duplicate entry '${postedData.userName}' for key 'userName'`:
-                        res.json(`Le pseudo ${postedData.userName} est déja utiliser veuillez en choisir un autres`)
+                        res.json({
+                            "message":`Le pseudo ${postedData.userName} est déja utiliser veuillez en choisir un autres`
+                        })
                     break;
                     case `Duplicate entry '${postedData.email}' for key 'email'`:
-                        res.json(`L'adresse email ${postedData.email} est déja utiliser veuillez en choisir un autres`)
+                        res.json({
+                            "message":`L'adresse email ${postedData.email} est déja utiliser veuillez en choisir un autres`
+                        })
                     break;
                     default:
-                        res.json("Une érreur est survenue veuillez réssayer.")
+                        res.json({
+                            "message":"Une érreur est survenue veuillez réssayer."
+                        })
                     break;
                 }
             }
         } while(!sucess){
-            res.json("Votre Profil à été modifier avec succès")
+            res.json({
+                "message":"Votre Profil à été modifier avec succès"
+            })
         }
     } else {
-        res.json("Veuillez vous connectez pour éffectuer cette opération")
+        res.json({
+            "message":"Veuillez vous connectez pour éffectuer cette opération"
+        })
     }
 })
 module.exports = router;
@@ -124,7 +173,9 @@ router.post("/updatePassword", async function(req, res, next){
                 console.log(passwordAuthentification);
                 console.log(password[0].password);
             } else{
-                res.json("Authentification échouer veuillez ré éssayer")
+                res.json({
+                    "message":"Authentification échouer veuillez ré éssayer"
+                })
             }
         })
         if(!passwordAuthentification){
@@ -136,23 +187,15 @@ router.post("/updatePassword", async function(req, res, next){
                     res.json(err)
                 }
             } while(!sucess){
-                res.json("Mot de passe changer avec succès")
+                res.json({
+                    "message":"Mot de passe changer avec succès"
+                })
             }
         }
     } else{
-        res.json("Une érreur est survenue veuillez ré éssayer")
-    }
-})
-module.exports = router;
-
-router.get("/OthersProfil/:userId", function(req,res,next){
-    const dataBase= req.app.locals.db;
-    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(sqlRequests.userProfilSqlRequestUserProfilRoute,[req.params.userId],function(err, userDetails){
-            delete userDetails[0].password;
-            res.json("Other profile Details",userDetails);
+        res.json({
+            "message":"Une érreur est survenue veuillez ré éssayer"
         })
     }
-
 })
 module.exports = router;

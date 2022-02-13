@@ -22,7 +22,6 @@ module.exports = router;
 router.get("/topics/:categoryId", function(req, res, next){
     const dataBase= req.app.locals.db;
     console.log(req.params.categoryId);
-
     dataBase.query(sqlRequests.sqlRequestForumCategoriesTopicsRoute,[req.params.categoryId], function(err, forumTopics){
         if(err) throw err;
         res.json(forumTopics);
@@ -32,7 +31,6 @@ module.exports = router;
 
 router.get("/posts/:topicId", function(req, res, next){
     const dataBase= req.app.locals.db;
-
     dataBase.query(sqlRequests.sqlRequestPostsDisplayRoute, [req.params.topicId], function(err, forumPosts){
         if(err) throw err;
         console.log(forumPosts);
@@ -51,7 +49,10 @@ router.post("/topic/new/:categoryId", upload.single("image"), async function(req
         dataBase.query(sqlRequests.sqlRequestNewTopicRoute,[parseInt(req.params.categoryId),usersKeys[req.signedCookies.userKey],req.body.topicTitle], function(err, result){
             const newTopicId= result.insertId;
             dataBase.query(sqlRequests.sqlRequestNewTopicRouteFirstPost,[newTopicId, usersKeys[req.signedCookies.userKey], req.body.firstTopicPost], function(err, resultTwo){
-                res.json({"topicId": newTopicId, "message":`Votre nouveaux sujet: ${req.body.topicTitle} à bien été ajouter`})
+                res.json({
+                    "topicId": newTopicId,
+                    "message":`Votre nouveaux sujet: ${req.body.topicTitle} à bien été ajouter`
+                })
             })
         })
     //Passage avec image
@@ -118,7 +119,9 @@ router.post("/post/new/:topicId", upload.single("image"), async function(req, re
             })
         }
     } else{
-        res.json({"message": "Vous devez vous connecter avant de poster."})
+        res.json({
+            "message": "Vous devez vous connecter avant de poster."
+        })
     }
 })
 module.exports = router;

@@ -17,9 +17,10 @@ const sqlRequestSendInscritpionFormRoute= `INSERT INTO usersProfils(
                                                                     email,
                                                                     userName,
                                                                     password,
+                                                                    adminUser,
                                                                     profilCreationDate
                                                                 )
-                                                                VALUES(?,?,?,?,?,?,?,?,NOW())`;
+                                                                VALUES(?,?,?,?,?,?,?,?,FALSE,NOW())`;
 exports.sqlRequestSendInscritpionFormRoute= sqlRequestSendInscritpionFormRoute;
 
 const sqlRequestDefaultProfilPicture= `INSERT INTO profilPicture(userId, imageId)
