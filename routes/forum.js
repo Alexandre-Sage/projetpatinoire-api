@@ -51,7 +51,7 @@ router.post("/topic/new/:categoryId", upload.single("image"), async function(req
             dataBase.query(sqlRequests.sqlRequestNewTopicRouteFirstPost,[newTopicId, usersKeys[req.signedCookies.userKey], req.body.firstTopicPost], function(err, resultTwo){
                 res.json({
                     "topicId": newTopicId,
-                    "message":`Votre nouveaux sujet: ${req.body.topicTitle} à bien été ajouter`
+                    "message":`Votre nouveaux sujet à bien été ajouter`
                 })
             })
         })
@@ -63,7 +63,7 @@ router.post("/topic/new/:categoryId", upload.single("image"), async function(req
             dataBase.query(sqlRequests.sqlRequestNewTopicRouteFirstPostWithImage,[newTopicId, usersKeys[req.signedCookies.userKey], req.body.firstTopicPost, req.file.path], function(err, resultTwo){
                 res.json({
                     "topicId": newTopicId,
-                    "message":`Votre nouveaux sujet: ${req.body.topicTitle} à bien été ajouter`
+                    "message":`Votre nouveaux sujet à bien été ajouter`
                 })
             })
         })
@@ -120,7 +120,8 @@ router.post("/post/new/:topicId", upload.single("image"), async function(req, re
         }
     } else{
         res.json({
-            "message": "Vous devez vous connecter avant de poster."
+            "message": "Vous devez vous connecter avant de poster.",
+            "validator": false
         })
     }
 })

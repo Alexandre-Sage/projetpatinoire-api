@@ -15,6 +15,10 @@ router.get("/", function(req, res, next){
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         dataBase.query(sqlRequests.sqlRequestChatRoute,[usersKeys[req.signedCookies.userKey],usersKeys[req.signedCookies.userKey]], function(err, chatFlows){
             if(err) throw err;
+            chatFlows.forEach((item, i) => {
+                delete item.userId
+                delete item.imageId
+            });
             console.log(chatFlows);
             res.json(chatFlows);
         })
@@ -73,7 +77,6 @@ router.post("/newFlow/:sendingUserId/:receiverUserId",function(req,res,next){
                 })
                 flowExisting=true;
             } else if (item.receiverUserId===parseInt(req.params.sendingUserId)&&item.sendingUserId===parseInt(req.params.receiverUserId)) {
-                console.log("ok2", item);
                 res.json({
                     "validator":true,
                     "flowId": item.flowId
