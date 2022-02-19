@@ -18,7 +18,9 @@ exports.passwordSqlRequestConnexionRoute= passwordSqlRequestConnexionRoute;
 const sqlHistoryRequestConnexionRoute=`SELECT * FROM forumPosts
                                         INNER JOIN forumTopics
                                         ON forumPosts.topicId = forumTopics.topicId
-                                        WHERE forumPosts.userId=?`
+                                        WHERE forumPosts.userId=?
+                                        ORDER BY postCreationDate DESC
+                                        LIMIT 10`;
 exports.sqlHistoryRequestConnexionRoute= sqlHistoryRequestConnexionRoute;
 ////////////////////////////////////////////////////////////////////////////////
 
