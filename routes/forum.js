@@ -19,6 +19,14 @@ router.get("/categories", function(req, res, next){
 })
 module.exports = router;
 
+router.get("/categories/detail/:categoryId", function(req,res,next){
+    const dataBase= req.app.locals.db;
+    dataBase.query(sqlRequests.sqlRequestCategoriesDetailRoute,[req.params.categoryId],function(err, categoryDetails){
+        res.json(categoryDetails)
+    })
+})
+module.exports = router;
+
 router.get("/topics/:categoryId", function(req, res, next){
     const dataBase= req.app.locals.db;
     console.log(req.params.categoryId);

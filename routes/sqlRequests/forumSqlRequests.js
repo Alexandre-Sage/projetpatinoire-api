@@ -6,6 +6,9 @@ const sqlRequestForumCategoriesTopicsRoute= `SELECT * FROM forumTopics
                                                 WHERE categoryId=?`;
 exports.sqlRequestForumCategoriesTopicsRoute=sqlRequestForumCategoriesTopicsRoute;
 
+const sqlRequestCategoriesDetailRoute= `SELECT * FROM forumCategories
+                                            WHERE categoryId=?`
+exports.sqlRequestCategoriesDetailRoute=sqlRequestCategoriesDetailRoute;
 const sqlRequestPostsDisplayRoute= `SELECT * FROM forumPosts
                                     INNER JOIN forumTopics ON forumPosts.topicId
                                     INNER JOIN (SELECT userName, userId FROM usersProfils) usersProfils ON forumPosts.userId
