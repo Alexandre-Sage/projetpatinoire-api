@@ -15,13 +15,13 @@ const passwordSqlRequestConnexionRoute=`SELECT password
 exports.passwordSqlRequestConnexionRoute= passwordSqlRequestConnexionRoute;
 ////////////////////////////////////////////////////////////////////////////////
 
-const sqlHistoryRequestConnexionRoute=`SELECT * FROM forumPosts
+const sqlHistoryRequestRoute=`SELECT * FROM forumPosts
                                         INNER JOIN forumTopics
                                         ON forumPosts.topicId = forumTopics.topicId
                                         WHERE forumPosts.userId=?
                                         ORDER BY postCreationDate DESC
                                         LIMIT 10`;
-exports.sqlHistoryRequestConnexionRoute= sqlHistoryRequestConnexionRoute;
+exports.sqlHistoryRequestRoute= sqlHistoryRequestRoute;
 ////////////////////////////////////////////////////////////////////////////////
 
 const userProfilSqlRequestUserProfilRoute=`SELECT * FROM profilPicture

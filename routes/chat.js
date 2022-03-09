@@ -41,7 +41,6 @@ module.exports = router;
 router.post("/messages/send",async function(req,res,next){
     const dataBase= req.app.locals.db;
     let sucess=false;
-
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         console.log("yes");
         do {
@@ -64,10 +63,12 @@ router.post("/newFlow/:sendingUserId/:receiverUserId",function(req,res,next){
     let flowExisting=false;
     let sucess=false;
     let resultId;
-    const sqlRequestNewFlowRoute=`INSERT INTO chatFlows(sendingUserId,receiverUserId,flowCreationDate)
+    const sqlRequestNewFlowRoute=`INSERT INTO
+                                    chatFlows(sendingUserId,
+                                    receiverUserId,
+                                    flowCreationDate)
                                     VALUES(?,?,NOW())`;
-    const sqlRequestCheckFlowNewFlowRoute=`SELECT * FROM chatFlows`
-
+    const sqlRequestCheckFlowNewFlowRoute=`SELECT * FROM chatFlows`;
     dataBase.query(sqlRequestCheckFlowNewFlowRoute,async function(err, flows){
         flows.forEach((item) => {
             if(item.sendingUserId===parseInt(req.params.sendingUserId)&&item.receiverUserId===parseInt(req.params.receiverUserId)){

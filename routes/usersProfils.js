@@ -52,23 +52,7 @@ router.post("/", function(req, res, next){
     });
 })
 module.exports = router;
-//A ENLEVER QUAND LES PROFILS SEONT FINIS
-/*router.get("/userProfil", function(req, res, next){
-    console.log(usersKeys);
-    const dataBase= req.app.locals.db;
-    if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(sqlRequests.userProfilSqlRequestUserProfilRoute,usersKeys[req.signedCookies.userKey], function(err, userDetails){
-            delete userDetails[0].password;
-            res.json(userDetails);
-            console.log(userDetails);
-        })
-    }else {
-        res.json("Probleme de chargement");
-    }
-})
-module.exports = router;*/
 
-//Route test fusion other/userSession//////////////////////////////////////////////////////////////////////////
 router.get("/userProfil/:userId", function(req, res, next){
     let userId;
     let profilOwner;
@@ -107,7 +91,7 @@ router.get("/userProfilForumHistory/:userId", function(req, res, next){
         userId=req.params.userId
     }
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
-        dataBase.query(sqlRequests.sqlHistoryRequestConnexionRoute, [userId], function(err, post){
+        dataBase.query(sqlRequests.sqlHistoryRequestRoute, [userId], function(err, post){
             res.json(post)
         })
     }
