@@ -53,9 +53,9 @@ router.post("/sendInscriptionForm", async function (req, res, next){
         res.json({
             "message":"Profil créer avec succes"
         });
-        /*dataBase.query(sqlRequests.sqlRequestNewUserId,[postedData.email],function(err,userId){
+        dataBase.query(sqlRequests.sqlRequestNewUserId,[postedData.email],function(err,userId){
             dataBase.query(sqlRequests.sqlRequestDefaultProfilPicture,[userId[0].userId])
-        })*/
+        });
     }
 });
 module.exports = router;

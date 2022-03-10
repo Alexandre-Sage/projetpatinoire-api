@@ -54,6 +54,7 @@ router.post("/", function(req, res, next){
 module.exports = router;
 
 router.get("/userProfil/:userId", function(req, res, next){
+    const dataBase= req.app.locals.db;
     let userId;
     let profilOwner;
     if(parseInt(req.params.userId)===usersKeys[req.signedCookies.userKey]){
@@ -65,9 +66,10 @@ router.get("/userProfil/:userId", function(req, res, next){
         userId=req.params.userId
         profilOwner=false;
     }
-    const dataBase= req.app.locals.db;
     if(userSession.authentification(usersKeys, req.signedCookies.userKey)){
         dataBase.query(sqlRequests.userProfilSqlRequestUserProfilRoute,[userId], function(err, userDetails){
+            console.log(err);
+            console.log(userDetails);
             delete userDetails[0].password;
             res.json({
                 "userDetails":userDetails,
