@@ -12,12 +12,12 @@ router.post("/", function(req, res, next){
     const dataBase= req.app.locals.db;
     const userEmail= req.body.emailInput;
     const userPassword= req.body.passwordInput;
-    console.log(req.body);
     dataBase.query(sqlRequests.emailCheckSqlRequestConnexionRoute , function(err, emails){
         if(emails.find(email=>email.email===userEmail)){
             dataBase.query(sqlRequests.passwordSqlRequestConnexionRoute,userEmail, function(err, password){
                 if (password[0].password===userSession.hidePassword(userPassword)){
                     dataBase.query(sqlRequests.userProfilSqlRequestConnexionRoute,userEmail, function(err, userProfil){
+                        console.log(userProfil)
                         const userKey= userSession.generateAuthToken();
                         usersKeys[userKey]=userProfil[0].userId
                         res.cookie("userKey", userKey, {
@@ -71,9 +71,18 @@ router.get("/userProfil/:userId", function(req, res, next){
             console.log(err);
             console.log(userDetails);
             delete userDetails[0].password;
+            /*const newConnDate= "UPDATE usersProfils SET lastConnexion= NOW() WHERE userId=?"
+            dataBase.query(newConnDate,[userId],(err, info)=>{
+                if(err){
+                    console.log(err);
+                } else if (info) {
+                    console.log(info);
+                }
+            })*/
             res.json({
                 "userDetails":userDetails,
-                "profilOwner":profilOwner
+                "profilOwner":profilOwner,
+                "firstConnexion": userDetails[0].lastConnexion===null?true:false
             });
         })
     }else {
